@@ -1,7 +1,7 @@
 {
   "channels": {
-    "filter": [],
-    "ignore": ["🔥vorstand"]
+    "filter": ["general"],
+    "ignore": []
   },
   "exportDir": "exports"
 }
