@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es2017", "es6", "es7", "dom"],
+    "declaration": true,
+    "module": "commonjs",
+    "target": "es5",
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "preserveConstEnums": true,
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "sourceMap": true,
+    "typeRoots": ["node_modules/@types"]
+  },
+  "exclude": ["node_modules", "*.js", "*.json", "exports"],
+  "include": ["./src/**/*"]
+}
