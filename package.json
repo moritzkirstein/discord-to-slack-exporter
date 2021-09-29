@@ -1,16 +1,19 @@
 {
-  "name": "discordchatexporter",
+  "name": "discord-to-slack-exporter",
   "version": "0.0.1",
-  "description": "A simple script to export discord chats.",
+  "description": "Export any Discord text channels to a .csv file to import into Slack.",
   "main": "src/index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint --ignore-path .gitignore --ext .js --ext .ts --ext .tsx . && npm run type-check",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --ignore-path .gitignore './**/*.{js,ts,json}' --write",
+    "clean": "rm -rf ./dist"
   },
   "keywords": [
     "discord",
     "export",
-    "chat",
+    "slack",
     "csv"
   ],
   "author": "Moritz Kirstein",
