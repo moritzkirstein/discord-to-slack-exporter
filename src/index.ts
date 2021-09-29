@@ -1,4 +1,4 @@
-import { Message, TextChannel, Channel, Collection } from 'discord.js'
+import { Message, TextChannel, Channel } from 'discord.js'
 import dotenv from 'dotenv'
 import { Client, Intents } from 'discord.js'
 import * as exportConfig from './config/export.json'
@@ -19,7 +19,7 @@ export const exportDirectory = path.join(__dirname, `../${exportDir}`)
 
 // ensure export directory exists
 if (!fs.existsSync(exportDirectory)) {
-  console.log(`Export directory not found. Creating at ${exportDirectory}...`)
+  console.log(`Export directory not found. Creating at ${exportDirectory}`)
   fs.mkdirSync(exportDirectory)
 }
 
