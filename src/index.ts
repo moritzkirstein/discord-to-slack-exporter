@@ -24,7 +24,9 @@ if (!fs.existsSync(exportDirectory)) {
 }
 
 // Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
+const client = new Client({
+  intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
+})
 
 const token = process.env.DISCORD_TOKEN
 
@@ -44,8 +46,18 @@ client.once('ready', () => {
 
   // get only text-channels to export and filter for names in config
   const channelsToExport = client.channels.cache.filter(
-    (channel: Channel | TextChannel) =>
-      channel.isText() && exportConfig.channels.includes(channel.name)
+    (channel: Channel | TextChannel) => {
+      if (
+        !channel.isText() ||
+        exportConfig.channels.ignore.includes(channel.name)
+      )
+        return false
+
+      return (
+        exportConfig.channels.filter.length <= 0 ||
+        exportConfig.channels.filter.includes(channel.name)
+      )
+    }
   )
 
   console.log(

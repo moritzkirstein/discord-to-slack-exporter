@@ -1,4 +1,7 @@
 {
-  "channels": ["announcements", "general"],
+  "channels": {
+    "filter": [],
+    "ignore": ["🔥vorstand"]
+  },
   "exportDir": "exports"
 }
