@@ -1,4 +1,5 @@
 import { Message, TextChannel } from 'discord.js'
+import sanitize from 'sanitize-filename'
 import { SlackMessage } from '../@types/SlackMessage'
 
 /**
@@ -14,10 +15,10 @@ export function createSlackMessage(
   return {
     // convert to unix timestamp
     timestamp: Math.floor(message.createdTimestamp / 1000),
+    channel: sanitize(channel.name),
     // ensure uniqueness of usernames
-    author: `${message.author.username}_${message.author.discriminator}`,
-    channel: channel.name,
-    message: message.content
+    author: `${message.author.username}#${message.author.discriminator}`,
+    message: message.content.replace(/"/g, '\\"')
   }
 }
 
