@@ -1,4 +1,4 @@
 {
-  "channels": ["🚨announcements", "general"],
+  "channels": ["announcements", "general"],
   "exportDir": "exports"
 }
