@@ -1,5 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
 import sanitize from 'sanitize-filename'
+import fs from 'fs'
 import { SlackMessage } from '../@types/SlackMessage'
 
 /**
@@ -22,12 +23,15 @@ export function createSlackMessage(
   }
 }
 
-export function prepareMessagesForSlackImport(
-  messages: SlackMessage[]
-): SlackMessage[] {
+export function sortArrayByTimestamp(
+  array: {
+    timestamp: number | string
+    [key: string]: any
+  }[]
+): any[] {
   // messages need to be sorted by timestamp
   // see https://slack.com/intl/en-gb/help/articles/360035354694-Move-data-to-Slack-using-a-CSV-or-text-file
-  return messages.sort((a, b) => {
+  return array.sort((a, b) => {
     return a.timestamp > b.timestamp ? 1 : a.timestamp < b.timestamp ? -1 : 0
   })
 }
@@ -40,4 +44,14 @@ export function stringifySlackMessages(
     ...msg,
     timestamp: msg.timestamp.toString()
   }))
+}
+
+export function saveStringToFile(string: string, filename: string): void {
+  try {
+    console.log(`Saving .csv at ${filename}...`)
+    fs.writeFileSync(filename, string)
+    console.log(`${filename} saved!`)
+  } catch (error) {
+    console.error(error)
+  }
 }

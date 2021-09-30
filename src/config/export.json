@@ -3,5 +3,6 @@
     "filter": ["general"],
     "ignore": []
   },
-  "exportDir": "exports"
+  "exportDir": "exports",
+  "strategy": "bulk"
 }

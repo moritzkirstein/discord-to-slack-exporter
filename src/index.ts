@@ -2,20 +2,23 @@ import { Message, TextChannel, Channel } from 'discord.js'
 import dotenv from 'dotenv'
 import { Client, Intents } from 'discord.js'
 import * as exportConfig from './config/export.json'
-import Csv from './utils/Csv'
+import Csv, { CsvObject } from './utils/Csv'
 import { SlackMessage } from './@types/SlackMessage'
 import path from 'path'
 import fs from 'fs'
-import { exportDir } from './config/export.json'
+import * as ExportConfig from './config/export.json'
 import {
   createSlackMessage,
-  prepareMessagesForSlackImport,
+  sortArrayByTimestamp,
   stringifySlackMessages
 } from './utils/utils'
 import { exit } from 'process'
 
 dotenv.config()
-export const exportDirectory = path.join(__dirname, `../${exportDir}`)
+export const exportDirectory = path.join(
+  __dirname,
+  `../${ExportConfig.exportDir}`
+)
 
 // ensure export directory exists
 if (!fs.existsSync(exportDirectory)) {
@@ -65,6 +68,16 @@ client.once('ready', () => {
     channelsToExport.map((channel: TextChannel) => channel.name)
   )
 
+  const bulkCsv = new Csv('bulk-export')
+
+  console.log(
+    `Found ${ExportConfig.strategy} export strategy. Exporting ${
+      ExportConfig.strategy === 'bulk'
+        ? 'a single .csv file.'
+        : 'one .csv file per channel.'
+    }`
+  )
+
   // loop through all channels to export
   channelsToExport.map((channel: TextChannel, key: string) => {
     // and fetch the messages from that channel
@@ -80,17 +93,36 @@ client.once('ready', () => {
 
       // clean-up work, stringifying all entries & sorting by timestamp
       const csvObjects = stringifySlackMessages(
-        prepareMessagesForSlackImport(slackMessages)
+        sortArrayByTimestamp(slackMessages)
       )
 
-      // create a new Csv instance
-      const csv = new Csv(csvObjects, channel.name)
+      if (ExportConfig.strategy === 'bulk') {
+        bulkCsv.append(csvObjects)
+      } else {
+        // create a new Csv instance
+        const csv = new Csv(channel.name, csvObjects)
+        // save the .csv file
+        csv.save()
+      }
 
-      // save the .csv file
-      csv.save()
+      if (key === channelsToExport.lastKey()) {
+        if (ExportConfig.strategy === 'bulk') {
+          // if bulk saving we need to sort the entries again
+          const csvObjects = sortArrayByTimestamp(
+            bulkCsv.getCsvObjects() as unknown as SlackMessage[]
+          )
+          console.log('bulkCsv objects length:', bulkCsv.getCsvObjects().length)
+          console.log('new csvObjects length:', csvObjects.length)
+          bulkCsv.setCsvObjects(csvObjects)
+          console.log(
+            'bulkCsv objects length after setting:',
+            bulkCsv.getCsvObjects().length
+          )
+          bulkCsv.save()
+        }
 
-      if (key === channelsToExport.lastKey())
         exportFinished(channelsToExport.size)
+      }
     })
   })
 })

@@ -36,24 +36,9 @@ class Csv {
       throw 'csvObject and fileName need to be defined'
 
     const csvString = this.toString()
+    console.log('csvString length:', csvString.length)
 
     saveStringToFile(csvString, this.fileName)
-  }
-
-  /**
-   * set the csvObjects []
-   * @param {CsvObject[]} csvObjects the csvObjects to set to
-   */
-  setCsvObjects(csvObjects: CsvObject[]): void {
-    this.csvObjects = csvObjects
-  }
-
-  /**
-   * append to the csvObjects []
-   * @param {CsvObject[]} csvObjects the csvObjects to append
-   */
-  append(csvObjects: CsvObject[]): void {
-    this.csvObjects.concat(csvObjects)
   }
 
   /**
@@ -78,6 +63,22 @@ class Csv {
     return this.csvObjects
       .map((csvObject) => Csv.csvObjectToString(csvObject))
       .join('\n')
+  }
+
+  /**
+   * append to the csvObjects []
+   * @param {CsvObject[]} csvObjects the csvObjects to append
+   */
+  append(csvObjects: CsvObject[]): void {
+    this.setCsvObjects(this.csvObjects.concat(csvObjects))
+  }
+
+  /**
+   * set the csvObjects []
+   * @param {CsvObject[]} csvObjects the csvObjects to set to
+   */
+  setCsvObjects(csvObjects: CsvObject[]): void {
+    this.csvObjects = csvObjects
   }
 
   /**
