@@ -1,15 +1,14 @@
-import fs from 'fs'
-import sanitize from 'sanitize-filename'
 import { exportDirectory } from '..'
+import { saveStringToFile } from './utils'
 
-type CsvObject = Record<string, string>
+export type CsvObject = Record<string, string>
 
 /**
  * Csv utility class
  * A simple class for translating a number of objects of strings to a .csv file
  */
 class Csv {
-  private csvObjects: CsvObject[]
+  private csvObjects: CsvObject[] = []
   private fileName: string
 
   /**
@@ -17,9 +16,10 @@ class Csv {
    * @param {CsvObject[]} csvObjects the csvObjects the .csv file should be generated with
    * @param {string} fileName the name of the generated .csv file
    */
-  constructor(csvObjects: CsvObject[], fileName: string) {
-    this.csvObjects = csvObjects
-    this.fileName = `${exportDirectory}/${sanitize(fileName)}.csv`
+  constructor(fileName: string, csvObjects?: CsvObject[]) {
+    this.fileName = `${exportDirectory}/${fileName}.csv`
+
+    if (csvObjects) this.csvObjects = csvObjects
 
     console.log(
       `Creating a new Csv at ${this.fileName} with ${this.csvObjects.length} lines.`
@@ -37,13 +37,23 @@ class Csv {
 
     const csvString = this.toString()
 
-    try {
-      console.log(`Saving .csv at ${this.fileName}...`)
-      fs.writeFileSync(this.fileName, csvString)
-      console.log(`${this.fileName} saved!`)
-    } catch (error) {
-      console.error(error)
-    }
+    saveStringToFile(csvString, this.fileName)
+  }
+
+  /**
+   * set the csvObjects []
+   * @param {CsvObject[]} csvObjects the csvObjects to set to
+   */
+  setCsvObjects(csvObjects: CsvObject[]): void {
+    this.csvObjects = csvObjects
+  }
+
+  /**
+   * append to the csvObjects []
+   * @param {CsvObject[]} csvObjects the csvObjects to append
+   */
+  append(csvObjects: CsvObject[]): void {
+    this.csvObjects.concat(csvObjects)
   }
 
   /**
@@ -68,6 +78,22 @@ class Csv {
     return this.csvObjects
       .map((csvObject) => Csv.csvObjectToString(csvObject))
       .join('\n')
+  }
+
+  /**
+   * Getter
+   * @return {CsvObject[]} the CsvObject[] of this Csv instance
+   */
+  getCsvObjects(): CsvObject[] {
+    return this.csvObjects
+  }
+
+  /**
+   * Getter
+   * @return {string} the filename of this Csv instance
+   */
+  getFileName(): string {
+    return this.fileName
   }
 }
 
