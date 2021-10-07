@@ -33,10 +33,13 @@ class Csv {
    */
   save(): void {
     if (!this.csvObjects || !this.fileName)
-      throw 'csvObject and fileName need to be defined'
+      throw 'csvObjects and fileName need to be defined'
 
     const csvString = this.toString()
-    console.log('csvString length:', csvString.length)
+    console.log(
+      `Writing csvString to ${this.fileName} with length:`,
+      csvString.length
+    )
 
     saveStringToFile(csvString, this.fileName)
   }
