@@ -38,7 +38,7 @@ class DiscordTextChannel {
       )
 
       // prepare fetched messages and add them to the array
-      const msgArray = this.prepareMessageArray(collection)
+      const msgArray = await this.prepareMessageArray(collection)
       // update snowflake for the next fetch
       before = msgArray[0].createdTimestamp
       messageArray = messageArray.concat(msgArray)
@@ -51,7 +51,7 @@ class DiscordTextChannel {
     return messageArray
   }
 
-  prepareMessageArray(messages: Collection<string, Message>): Message[] {
+  async prepareMessageArray(messages: Collection<string, Message>) {
     const messageArray = Array.from(messages.values())
 
     messageArray
@@ -63,33 +63,38 @@ class DiscordTextChannel {
           ? -1
           : 0
       })
-      .map((msg) => {
-        // look for attachements (e.g. pictures etc.)
-        // and import the urls to the content of the message
-        msg = DiscordTextChannel.importAttachmentsToMessageContent(msg)
 
-        // look for user mentions and translate them to readable tags
-        msg.content = this.makeUserMentionsReadable(msg.content)
-      })
+    for await (const message of messageArray) {
+      // look for attachements (e.g. pictures etc.)
+      // and import the urls to the content of the message
+      const messageWithAttachments =
+        DiscordTextChannel.importAttachmentsToMessageContent(message)
+
+      // look for user mentions and translate them to readable tags
+      messageWithAttachments.content = await this.makeUserMentionsReadable(
+        messageWithAttachments.content
+      )
+    }
 
     return messageArray
   }
 
-  makeUserMentionsReadable(content: string): string {
+  async makeUserMentionsReadable(content: string) {
     // look for <@!123456789> = discords user mentions
-    const matches = content.match(/<@![0-9]*>/)
+    const matches = content.match(/(<@![0-9]*>|<@[0-9]*>)/gm)
 
-    matches &&
-      matches.map(async (match) => {
+    if (matches && matches.length > 0) {
+      for await (const match of matches) {
         // get the member associated with the matched id
         const member = await this.textChannel.client.users.fetch(
-          match.replace('<@!', '').replace('>', '')
+          match.replace('<@', '').replace('!', '').replace('>', '')
         )
         // replace the <@!123456789> with @username
         if (member) content = content.replace(match, '@' + member.username)
-      })
+      }
 
-    return content
+      return content
+    } else return content
   }
 
   static importAttachmentsToMessageContent(message: Message): Message {
